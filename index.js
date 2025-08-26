@@ -6,11 +6,9 @@ import authRouter from "./routes/authRoute.js";
 import listingRouter from "./routes/listingroute.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import path from "path";
 
 dotenv.config();
 
-const __dirname = path.resolve();
 const app = express();
 
 // Connect to MongoDB
@@ -40,17 +38,9 @@ app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/listing", listingRouter);
 
-// Simple test API route (put this before catch-all)
+// Simple test API route
 app.get("/api", (req, res) => {
   res.send("API is running");
-});
-
-// Serve static frontend files if in production
-app.use(express.static(path.join(__dirname, "client", "dist")));
-
-// Catch-all to serve React app for any other route (frontend routing)
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
 });
 
 // Error handler middleware
