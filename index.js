@@ -25,6 +25,7 @@ app.use(
       "http://localhost:5173",
       "https://mern-estate-frontend-zeta.vercel.app",
     ],
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
 );
