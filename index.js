@@ -11,48 +11,37 @@ dotenv.config();
 
 const app = express();
 
+// Connect to MongoDB
 mongoose
   .connect(process.env.MONGO)
   .then(() => console.log("Connected to MongoDB!"))
   .catch((err) => console.log("MongoDB connection error:", err));
 
-
+// Setup CORS with allowed origins
 const allowedOrigins = [
-  "https://mern-estate-frontend-zeta.vercel.app", 
-  "http://localhost:5173"                          
+  "https://mern-estate-frontend-zeta.vercel.app", // your frontend on vercel
+  "http://localhost:5173" // for local dev
 ];
-
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin) return callback(null, true); // allow requests like Postman
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  origin: allowedOrigins,
+  credentials: true
 }));
 
-
-app.options("*", cors());
-
+// Middleware for JSON and cookies
 app.use(express.json());
 app.use(cookieParser());
 
+// API Routes
 app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/listing", listingRouter);
 
-
+// Simple test API route
 app.get("/api", (req, res) => {
   res.send("API is running");
 });
 
-app.get("/favicon.ico", (req, res) => res.status(204));
-
-
+// Error handler middleware
 app.use((err, req, res, next) => {
   console.error("Caught Error:", err);
   const statusCode = Number(err.statusCode) || 500;
@@ -64,10 +53,9 @@ app.use((err, req, res, next) => {
   });
 });
 
+// Favicon route to prevent unnecessary errors
+app.get("/favicon.ico", (req, res) => res.status(204));
 
-app.use((req, res) => {
-  res.status(404).json({ success: false, message: "Route not found" });
-});
-
+// Start server
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
