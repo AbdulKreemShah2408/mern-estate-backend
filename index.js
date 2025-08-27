@@ -18,7 +18,7 @@ mongoose
 
 
 const allowedOrigins = [
-  "https://mern-estate-frontend-zeta.vercel.app/", 
+  "https://mern-estate-frontend-zeta.vercel.app", 
   "http://localhost:5173" 
 ];
 app.use(cors({
