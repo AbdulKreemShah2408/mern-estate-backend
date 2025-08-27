@@ -18,17 +18,14 @@ mongoose
   .catch((err) => console.log("MongoDB connection error:", err));
 
 // Setup CORS with allowed origins
-app.use(
-  cors({
-    origin: [
-      process.env.CLIENT_URL,
-      "http://localhost:5173",
-      "https://mern-estate-frontend-zeta.vercel.app",
-    ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  })
-);
+const allowedOrigins = [
+  "https://mern-estate-frontend-zeta.vercel.app", // your frontend on vercel
+  "http://localhost:5173" // for local dev
+];
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
 
 // Middleware for JSON and cookies
 app.use(express.json());
