@@ -32,7 +32,7 @@ export const signin = async (req, res, next) => {
       .cookie("access_token", token, {
         httpOnly: true,
         sameSite: "lax",
-        secure: false, 
+        secure: true, 
       })
       .status(200)
       .json({
@@ -57,7 +57,7 @@ export const google = async (req, res, next) => {
         .cookie("access_token", token, {
           httpOnly: true,
           sameSite: "lax",
-          secure: false,
+          secure: true,
         })
         .status(200)
         .json({
@@ -88,7 +88,7 @@ export const google = async (req, res, next) => {
         .cookie("access_token", token, {
           httpOnly: true,
           sameSite: "lax",
-          secure: false,
+          secure: true,
         })
         .status(200)
         .json({
