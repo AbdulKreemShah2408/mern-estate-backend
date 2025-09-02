@@ -2,6 +2,7 @@ import Listing from "../models/listing.model.js";
 import jwt from "jsonwebtoken";
 import errorHandler from "../utils/error.js";
 
+// Create a new listing
 export const createListing = async (req, res, next) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
@@ -14,23 +15,35 @@ export const createListing = async (req, res, next) => {
       return next(errorHandler(401, "Invalid or expired token"));
     }
 
+    // Validate incoming fields
+    const allowedFields = [
+      "name", "description", "address", "type",
+      "bedrooms", "bathrooms", "regularPrice", 
+      "discountPrice", "offer", "parking", "furnished", "imageUrls"
+    ];
+    const data = {};
+    allowedFields.forEach(field => {
+      if (req.body[field] !== undefined) data[field] = req.body[field];
+    });
+
     const listing = new Listing({
-      ...req.body,
+      ...data,
       userRef: decoded.id,
     });
 
     await listing.save();
+
     return res.status(201).json({
       success: true,
       message: "Listing created successfully",
-      _id: listing._id,
-      ...listing._doc,
+      data: listing
     });
   } catch (error) {
     next(error);
   }
 };
 
+// Delete a listing
 export const deleteListing = async (req, res, next) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
@@ -51,12 +64,17 @@ export const deleteListing = async (req, res, next) => {
     }
 
     await Listing.findByIdAndDelete(req.params.id);
-    res.status(200).json("Listing has been deleted");
+
+    res.status(200).json({
+      success: true,
+      message: "Listing has been deleted"
+    });
   } catch (error) {
     next(error);
   }
 };
 
+// Update a listing
 export const updateListing = async (req, res, next) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
@@ -70,34 +88,55 @@ export const updateListing = async (req, res, next) => {
     }
 
     const listing = await Listing.findById(req.params.id);
-    if (!listing) return next(errorHandler(404, "Listing was not found!"));
+    if (!listing) return next(errorHandler(404, "Listing not found!"));
 
     if (decoded.id !== listing.userRef.toString()) {
       return next(errorHandler(401, "You can only update your own listing"));
     }
 
+    // Only allow certain fields to be updated
+    const allowedFields = [
+      "name", "description", "address", "type",
+      "bedrooms", "bathrooms", "regularPrice", 
+      "discountPrice", "offer", "parking", "furnished", "imageUrls"
+    ];
+    const updates = {};
+    allowedFields.forEach(field => {
+      if (req.body[field] !== undefined) updates[field] = req.body[field];
+    });
+
     const updatedListing = await Listing.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updates,
       { new: true }
     );
 
-    res.status(200).json(updatedListing);
+    res.status(200).json({
+      success: true,
+      message: "Listing updated successfully",
+      data: updatedListing
+    });
   } catch (error) {
     next(error);
   }
 };
 
+// Get a single listing
 export const getListing = async (req, res, next) => {
   try {
     const listing = await Listing.findById(req.params.id);
-    if (!listing) return next(errorHandler(404, "Listing was not found!"));
-    res.status(200).json(listing);
+    if (!listing) return next(errorHandler(404, "Listing not found!"));
+
+    res.status(200).json({
+      success: true,
+      data: listing
+    });
   } catch (error) {
     next(error);
   }
 };
 
+// Get multiple listings with filters
 export const getListings = async (req, res, next) => {
   try {
     const limit = parseInt(req.query.limit) || 9;
@@ -130,7 +169,10 @@ export const getListings = async (req, res, next) => {
       .limit(limit)
       .skip(startIndx);
 
-    return res.status(200).json(listings);
+    return res.status(200).json({
+      success: true,
+      data: listings
+    });
   } catch (error) {
     next(error);
   }
