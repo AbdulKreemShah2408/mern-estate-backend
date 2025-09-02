@@ -1,15 +1,20 @@
-import errorHandler from "./error.js";
 import jwt from "jsonwebtoken";
+import errorHandler from "../utils/error.js";
 
 export const verifyToken = (req, res, next) => {
-   const token =
-    req.cookies.access_token || req.headers["authorization"]?.split(" ")[1];
+  try {
+    const authHeader = req.headers.authorization;
 
-  if (!token) return next(errorHandler(401, "Unauthorized"));
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return next(errorHandler(401, "Unauthorized: No token provided"));
+    }
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) return next(errorHandler(403, "Forbidden"));
-    req.user = user; 
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    req.user = decoded; 
     next();
-  });
+  } catch (error) {
+    return next(errorHandler(401, "Unauthorized: Invalid token"));
+  }
 };
