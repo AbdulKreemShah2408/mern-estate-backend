@@ -93,7 +93,6 @@ export const google = async (req, res, next) => {
         .status(200)
         .json({
           user: rest,
-          token, 
         });
     }
   } catch (error) {
